@@ -1,85 +1,75 @@
-# Min Pipeline
+# min-pipeline
 
-A lightweight CI/CD engine designed for simplicity and full control. `min-pipeline` acts as a webhook receiver that triggers local scripts (e.g., Bash) whenever a code push occurs. It's minimalist, fast, and powerful without the bloat of traditional CI/CD systems.
+A high-performance, minimalist event-driven automation engine. `min-pipeline` serves as a lightweight bridge between GitHub webhooks and local shell scripts, enabling seamless CI/CD workflows with zero infrastructure bloat.
 
-## 🚀 Features
+## Overview
 
-- **Lightweight:** Minimal overhead, runs as a simple Node.js process.
-- **Script-Driven:** Define your automation logic in simple Bash scripts.
-- **Secure:** HMAC-SHA256 signature verification for GitHub webhooks.
-- **Real-time Logs:** Monitor activities with structured logging.
-- **Tunneling Support:** Built-in `tunnelmole` support for local testing.
+`min-pipeline` is designed for developers who require absolute control over their deployment pipelines without the complexity of traditional CI/CD platforms. It functions as a dedicated webhook listener that validates incoming requests and executes corresponding automation logic based on the event type.
 
-## 🛠️ Setup
+## System Architecture
 
-### 1. Installation
+The engine operates on a simple but robust execution flow:
 
-Install `min-pipeline` globally via npm:
+1.  **Ingress:** The server listens for POST requests on the `/webhook` endpoint.
+2.  **Authentication:** Every payload is verified using HMAC-SHA256 signatures against a pre-shared `APP_SECRET`.
+3.  **Routing:** The engine maps the `X-GitHub-Event` header to a specific script in the `scripts/` directory (e.g., a `push` event triggers `push.sh`).
+4.  **Execution:** A subprocess is spawned to execute the script, passing critical metadata (branch, repository URLs, pusher info) as positional arguments.
+5.  **Observability:** All execution streams (stdout/stderr) and event metadata are captured via structured logging.
+
+## Getting Started
+
+### Installation
+
+`min-pipeline` can be installed globally for system-wide access or managed as a local project dependency.
 
 ```bash
+# Global installation
 npm install -g min-pipeline
-```
 
-Or clone and install locally:
-
-```bash
+# Local development setup
 git clone https://github.com/yohanesokta/min-pipeline.git
 cd min-pipeline
 npm install
 ```
 
-### 2. Configure Environment
+### Configuration
 
-Set your `APP_SECRET` for webhook verification. If not set, a random secret will be generated on startup.
+Operational parameters are managed through environment variables to ensure secure and flexible deployments.
 
-```bash
-export APP_SECRET="your-very-secure-secret"
-export APP_PORT=9013  # Optional, defaults to 9013
-```
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `APP_SECRET` | Secret key for GitHub webhook signature validation. | *Randomly generated* |
+| `APP_PORT` | The port on which the server listens for requests. | `9013` |
+| `SCRIPT_DIR` | Directory containing the automation scripts. | `./scripts/` |
+| `CUSTOM_DOMAIN` | Target domain when running with Tunnelmole. | `null` |
 
-### 3. Prepare Your Scripts
+## Webhook Integration
 
-Place your automation scripts in the `scripts/` directory. By default, it looks for `push.sh` for push events.
+To connect your repository, configure a new webhook in your GitHub settings:
 
-```bash
-chmod +x scripts/*.sh
-```
+- **Payload URL:** `http://<your-server-address>:<port>/webhook`
+- **Content type:** `application/json`
+- **Secret:** The value of your `APP_SECRET`
+- **SSL Verification:** Recommended for production environments
 
-### 4. Start the Engine
+### Script Interface
 
-```bash
-# Basic start
-min-pipeline
+When an event triggers a script, the following positional parameters are available:
 
-# Start with tunnel (for local development)
-min-pipeline tunnel=true
-```
+- `$1`: Target Branch (e.g., `main`)
+- `$2`: Repository Clone URL (HTTPS)
+- `$3`: Full Repository Name (`owner/repo`)
+- `$4`: SSH Clone URL
+- `$5`: Force Push Status (`true`/`false`)
+- `$6`: Pusher Username
 
-## 🔗 GitHub Integration
+## Security and Validation
 
-1.  Navigate to your repository: **Settings > Webhooks > Add webhook**.
-2.  **Payload URL:** `http://your-server-ip:9013/webhook`.
-3.  **Content type:** `application/json`.
-4.  **Secret:** Use the same `APP_SECRET` defined in your environment.
-5.  **Events:** Select `Just the push event` or any events you wish to handle.
+Security is a core priority. `min-pipeline` implements `crypto.timingSafeEqual` to prevent timing attacks during signature verification. Requests without a valid `X-Hub-Signature-256` or those failing the HMAC check are rejected with a `401 Unauthorized` status.
 
-## 📜 Script Parameters
+## Monitoring
 
-When a script is triggered, `min-pipeline` passes the following arguments:
-
-- `$1`: Branch name (e.g., `main`)
-- `$2`: Repository Clone URL
-- `$3`: Full Repository Name (e.g., `user/repo`)
-- `$4`: SSH URL
-- `$5`: Forced Push (boolean)
-- `$6`: Pusher Name
-
-## 🏗️ Tech Specs
-
-- **Runtime:** Node.js (Express)
-- **Security:** HMAC-SHA256 Verification
-- **Logging:** Winston (logs to `logs.json`)
-- **Proxy:** Tunnelmole (optional)
+Activities are logged to `logs.json` using a structured JSON format, facilitating integration with log aggregators. During development, the console transport provides colorized, human-readable output for real-time debugging.
 
 ---
 
