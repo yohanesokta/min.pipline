@@ -1,7 +1,10 @@
+#!/usr/bin/env node
 import express from "express"
 import cors from "cors"
 import { generateBase64String, secret_verification } from "./crypto.js"
 import { push_event } from "./runner.js"
+import { logger } from "./log.js"
+
 const app = express();
 const APP_PORT = 9013;
 if (!process.env.APP_SECRET) {
@@ -19,12 +22,13 @@ app.use(express.json({
 }))
 
 app.post("/webhook", secret_verification, (request, response) => {
-
   const XGEvent = request.headers['x-github-event'] ?? "";
-
   switch (XGEvent) {
     case "push":
-      push_event();
+      logger.info("info", { "request": "-------------------------------" })
+      logger.log("info", request.headers)
+      logger.log("info", request.body)
+      push_event(response.body);
       response.status(200).send(`running : ${XGEvent}`);
       break;
     default:
@@ -38,5 +42,5 @@ app.use((_, response) => {
 })
 
 app.listen(APP_PORT, () => {
-  console.log(`min.pipline Is Running ON \nURL : http://localhost:${APP_PORT}\nSECRET : ${process.env.APP_SECRET}`);
+  console.log(`'min.pipline' Is Running ON \nURL : http://localhost:${APP_PORT}\n\n`);
 })
