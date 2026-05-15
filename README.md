@@ -43,6 +43,26 @@ Operational parameters are managed through environment variables to ensure secur
 | `SCRIPT_DIR` | Directory containing the automation scripts. | `./scripts/` |
 | `CUSTOM_DOMAIN` | Target domain when running with Tunnelmole. | `null` |
 
+## Quick Start (Global Usage)
+
+Once installed globally, you can initiate the engine directly from your terminal.
+
+### Local Development (With Tunneling)
+Use this mode to expose your local environment to the internet for testing GitHub webhooks without manual port forwarding.
+
+```bash
+# Exposes the engine via an automated tunnel
+min-pipeline tunnel=true
+```
+
+### Server Deployment (Standard)
+For production or server environments where the IP/Domain is already accessible.
+
+```bash
+# Standard execution
+min-pipeline
+```
+
 ## Webhook Integration
 
 To connect your repository, configure a new webhook in your GitHub settings:
