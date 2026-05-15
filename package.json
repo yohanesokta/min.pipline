@@ -1,24 +1,27 @@
 {
-  "name": "minpipline",
+  "name": "min-pipeline",
   "version": "1.0.0",
-  "description": "is a lightweight CI/CD system inspired by Jenkins, designed for simplicity and full control. It allows you to define, run, and monitor build pipelines with real-time logs, minimal overhead, and easy self-hosting.",
+  "description": "A lightweight CI/CD system inspired by Jenkins, designed for simplicity and full control. It allows you to define, run, and monitor build pipelines with real-time logs, minimal overhead, and easy self-hosting.",
   "keywords": [
-    "minpipline"
+    "min-pipeline",
+    "ci-cd",
+    "automation",
+    "webhook"
   ],
-  "homepage": "https://github.com/yohanesokta/min.pipline#readme",
+  "homepage": "https://github.com/yohanesokta/min-pipeline#readme",
   "bugs": {
-    "url": "https://github.com/yohanesokta/min.pipline/issues"
+    "url": "https://github.com/yohanesokta/min-pipeline/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yohanesokta/min.pipline.git"
+    "url": "git+https://github.com/yohanesokta/min-pipeline.git"
   },
   "license": "MIT",
   "author": "Yohanes Oktanio",
   "type": "module",
   "main": "main.js",
-  "bin" : {
-    "minpipline" : "./main.js"
+  "bin": {
+    "min-pipeline": "./main.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -26,6 +29,7 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "tunnelmole": "^2.4.0",
     "winston": "^3.19.0"
   }
 }

@@ -5,6 +5,7 @@ import cors from "cors"
 import { generateBase64String, secret_verification } from "./crypto.js"
 import { push_event } from "./runner.js"
 import { logger } from "./log.js"
+import { tunnelmole } from "tunnelmole";
 
 const app = express();
 const APP_PORT = process.env.APP_PORT ?? 9013;
@@ -24,25 +25,42 @@ app.use(express.json({
 
 app.post("/webhook", secret_verification, (request, response) => {
   const XGEvent = request.headers['x-github-event'] ?? "";
-  logger.info("info", { "request": `-REQUEST [${XGEvent}]-` });
-  logger.log("info", request.headers);
-  logger.log("info", request.body);
+  logger.info(`Received GitHub Event: ${XGEvent}`);
+
   switch (XGEvent) {
     case "push":
-      push_event("push.sh", response.body);
-      response.status(200).send(`running handling : ${XGEvent}.sh`);
+      push_event("push.sh", request.body);
+      response.status(200).send(`Handling push event via push.sh`);
       break;
     default:
-      push_event(XGEvent + ".sh", response.body);
-      return response.status(200).send(`running handling event with : ${XGEvent}.sh`);
+      push_event(`${XGEvent}.sh`, request.body);
+      response.status(200).send(`Handling ${XGEvent} event via ${XGEvent}.sh`);
   }
-  console.log("Github Event :" + XGEvent);
 });
 
 app.use((_, response) => {
-  response.status(404).send("Not Found Endpoints");
+  response.status(404).send("Not Found Endpoints, But min-pipeline is running!");
 })
 
+const args = process.argv.slice(2);
+const tunnelArg = args.find(arg => arg.startsWith("tunnel="));
+const tunnel = tunnelArg
+  ? tunnelArg.split("=")[1] === "true"
+  : false;
+
+if (tunnel) {
+  const domain = process.env.CUSTOM_DOMAIN ?? null
+  let options = { port: APP_PORT }
+  if (domain) {
+    options['domain'] = domain;
+  }
+  tunnelmole(options, false).then((elements) => {
+    logger.info(`Tunnel active: ${elements.toString()}`);
+  }).catch((error) => {
+    logger.error(`Tunnel error: ${error.toString()}`);
+  });
+}
+
 app.listen(APP_PORT, () => {
-  console.log(`'min.pipline' Is Running ON \nURL : http://localhost:${APP_PORT}\n\n`);
+  logger.info(`'min-pipeline' Is Running ON URL: http://localhost:${APP_PORT}`);
 })
