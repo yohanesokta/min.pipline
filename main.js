@@ -26,8 +26,9 @@ app.use(express.json({
 app.post("/webhook", secret_verification, (request, response) => {
   const XGEvent = request.headers['x-github-event'] ?? "";
   logger.info(`Received GitHub Event: ${XGEvent}`);
-
   switch (XGEvent) {
+    case "ping":
+      return response.send("OK TESTED!")
     case "push":
       push_event("push.sh", request.body);
       response.status(200).send(`Handling push event via push.sh`);
@@ -55,7 +56,8 @@ if (tunnel) {
     options['domain'] = domain;
   }
   tunnelmole(options, false).then((elements) => {
-    logger.info(`Tunnel active: ${elements.toString()}`);
+    logger.info(`Tunnel active: ${elements.toString()}/webhook`);
+    logger.info(`secret : ${process.env.APP_SECRET}`);
   }).catch((error) => {
     logger.error(`Tunnel error: ${error.toString()}`);
   });
@@ -63,4 +65,7 @@ if (tunnel) {
 
 app.listen(APP_PORT, () => {
   logger.info(`'min-pipeline' Is Running ON URL: http://localhost:${APP_PORT}`);
+  if (!tunnel) {
+    logger.info(`secret : ${process.env.APP_SECRET}`);
+  }
 })

@@ -1,6 +1,6 @@
 {
   "name": "min-pipeline",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A lightweight CI/CD system inspired by Jenkins, designed for simplicity and full control. It allows you to define, run, and monitor build pipelines with real-time logs, minimal overhead, and easy self-hosting.",
   "keywords": [
     "min-pipeline",
