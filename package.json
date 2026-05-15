@@ -1,0 +1,27 @@
+{
+  "name": "min.pipline",
+  "version": "1.0.0",
+  "description": "is a lightweight CI/CD system inspired by Jenkins, designed for simplicity and full control. It allows you to define, run, and monitor build pipelines with real-time logs, minimal overhead, and easy self-hosting.",
+  "keywords": [
+    "min.pipline"
+  ],
+  "homepage": "https://github.com/yohanesokta/min.pipline#readme",
+  "bugs": {
+    "url": "https://github.com/yohanesokta/min.pipline/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yohanesokta/min.pipline.git"
+  },
+  "license": "MIT",
+  "author": "Yohanes Oktanio",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
